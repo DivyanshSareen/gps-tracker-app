@@ -49,7 +49,6 @@ export function useLocationTracking() {
   const requestLocationPermissions = async (): Promise<boolean> => {
     try {
       if (Platform.OS === 'web') {
-        // For web, use browser geolocation API
         return new Promise((resolve) => {
           navigator.geolocation.getCurrentPosition(
             () => resolve(true),
@@ -58,20 +57,35 @@ export function useLocationTracking() {
         });
       }
 
-      const { status: foregroundStatus } =
-        await Location.requestForegroundPermissionsAsync();
+      // First check if permissions are already granted
+      const { status: existingStatus } =
+        await Location.getForegroundPermissionsAsync();
 
-      if (foregroundStatus !== 'granted') {
-        console.log('Foreground location permission denied');
-        return false;
+      if (existingStatus !== 'granted') {
+        // Request foreground permissions
+        const { status: foregroundStatus } =
+          await Location.requestForegroundPermissionsAsync();
+
+        if (foregroundStatus !== 'granted') {
+          console.log('Foreground location permission denied');
+          return false;
+        }
       }
 
-      const { status: backgroundStatus } =
-        await Location.requestBackgroundPermissionsAsync();
+      // For production apps, you might want background permissions
+      try {
+        const { status: backgroundStatus } =
+          await Location.requestBackgroundPermissionsAsync();
 
-      if (backgroundStatus !== 'granted') {
+        if (backgroundStatus !== 'granted') {
+          console.log(
+            'Background location permission denied, continuing with foreground only'
+          );
+          // Don't return false here - foreground is sufficient for basic tracking
+        }
+      } catch (backgroundError) {
         console.log(
-          'Background location permission denied, continuing with foreground only'
+          'Background permission request failed, continuing with foreground'
         );
       }
 
