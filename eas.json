@@ -1,20 +1,29 @@
 {
-    "expo": {
-        "name": "GPS Tracker",
-        "slug": "gps-tracker-app",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "platforms": [
-            "ios",
-            "android"
-        ],
-        "android": {
-            "package": "com.yourcompany.yourapp",
-            "versionCode": 1,
-            "permissions": [
-                "ACCESS_COARSE_LOCATION",
-                "ACCESS_FINE_LOCATION"
-            ]
+    "cli": {
+        "version": ">= 5.0.0"
+    },
+    "build": {
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk",
+                "gradleCommand": ":app:assembleDebug"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            }
+        },
+        "production": {
+            "android": {
+                "buildType": "app-bundle"
+            }
         }
+    },
+    "submit": {
+        "production": {}
     }
 }
